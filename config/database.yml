@@ -1,0 +1,17 @@
+development:
+  adapter: postgresql
+  encoding: unicode
+  database: app_development
+  pool: 2
+  host: localhost
+  username: crecker
+  password: crecker
+
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: app_production
+  pool: 2
+  host: localhost
+  username: crecker
+  password: crecker

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='UTF-8' />
+    <title>Users list</title>
+    <script type="text/javascript">
+      function postUser() { //post user data
+        var formElement = document.querySelector("form");
+        var request = new XMLHttpRequest();
+        request.open("POST", "/", false);//async dont works properly with loadUser() even in case callback using 
+        request.send(new FormData(formElement));
+        document.getElementById("form").reset();//form reseting
+        loadUser();
+      }
+
+      function loadUser() { // GET json file with data
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/getusers', true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState != 4) return;
+          if (xhr.status != 200) {
+            alert(xhr.status + ': ' + xhr.statusText);
+          } else {
+            try {
+              var users = JSON.parse(xhr.responseText);
+            } catch (e) {
+              alert("Uncorrect answer " + e.message);
+            }
+            console.log(users);
+            showUsers(users);
+          }
+        }
+        xhr.send();
+      }
+
+      function showUsers(users) {
+        var old_tr = document.getElementsByTagName("tr");
+        if (old_tr != null) { //looking for exist table rows 
+          for(var i=old_tr.length-1; i>=0; i--){
+               var p = old_tr[i];
+               if(p.className === "users"){
+                   p.parentNode.removeChild(p); //remove table rows with old data
+              }
+          }
+        }
+        users.forEach(function(users) { //creating tr with new data
+          var name = users.name,
+              id = users.id,
+              lastname = users.lastname,
+              email = users.email;
+
+          var btn = document.createElement("button");
+          var text = document.createTextNode("Delete");
+          btn.appendChild(text);
+          btn.setAttribute("onclick", "deleteUser("+id+")") //adding user is to button
+
+          var tr = document.createElement("tr");
+          var td1 = tr.appendChild(document.createElement('td'));
+          var td2 = tr.appendChild(document.createElement('td'));
+          var td3 = tr.appendChild(document.createElement('td'));
+          var button = tr.appendChild(btn);
+
+          tr.setAttribute("class", "users");
+          td1.innerHTML = name;
+          td2.innerHTML = lastname;
+          td3.innerHTML = email;
+              
+          document.getElementById("list").appendChild(tr);
+        });
+
+      }
+
+      function deleteUser(id) { //delete user by it`s id
+        var formElement = document.querySelector("form");
+        var request = new XMLHttpRequest();
+        request.open("DELETE", id, false);
+        request.send();
+        loadUser();
+      }
+    </script>
+  </head>
+  <body onload="loadUser()">
+
+    <p>Enter new contacts:</p>
+
+    <form id="form">
+      First name:<br>
+      <input id="name" type="text" name="name"><br>
+      Last name:<br>
+      <input id="lastname" type="text" name="lastname"><br>
+      Email:<br>
+      <input id="email" type="email" name="email"><br>
+      <input type="button" value="Submit" onclick="postUser()">
+    </form>
+
+    <table id="list">
+    </table>
+
+  </body>
+</html>
